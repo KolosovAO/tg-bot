@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 function getHeroes(team) {
     return team.map(id => {
         const file = require(`./matchups${id}.json`);

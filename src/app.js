@@ -21,7 +21,7 @@ tg.setWebHook(`${url}/bot${TOKEN}`);
 
 tg.on('message', onMessage);
 
-function getWinrate(team1, team2) {
+function getWinrate(message, team1, team2) {
 	tg.sendMessage(message.chat.id, dota.getHeroesIcons(team1, team2), {
 		parse_mode:'HTML'
 	});
@@ -46,7 +46,7 @@ function onMessage(message) {
 			});
 			return;
 		}
-		getWinrate(team1, team2);
+		getWinrate(message, team1, team2);
 	}
 	if (message.text.split(' ')[0] === '/heroes') {
 		tg.sendMessage(message.chat.id, '<pre>' + dota.getHeroesList() + '</pre>', {
@@ -75,7 +75,7 @@ function onMessage(message) {
 	}
 	if (message.text.split(' ')[0] === '/match') {
 		const id = message.text.split(' ')[1];
-		dota.getPicksByMatch(id).then(([team1, team2]) => getWinrate(team1, team2));
+		dota.getPicksByMatch(id).then(([team1, team2]) => getWinrate(message, team1, team2));
 	}
 }
 

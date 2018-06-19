@@ -86,7 +86,7 @@ function onMessage(message) {
 		})
 	}
 	if (message.text.split(' ')[0] === '/teamheroes') {
-		const [team, rawHeroes] = message.text.slice(7).split("-");
+		const [team, rawHeroes] = message.text.slice(12).split("-");
 		const heroes = rawHeroes.split(" ");
 		dota.getTeamHeroesInfo(team, heroes).then(data => {
 			tg.sendMessage(message.chat.id, `<pre>${data}</pre>`, {

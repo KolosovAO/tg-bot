@@ -59,11 +59,13 @@ function onMessage(message) {
 		const count = message.text.split(' ')[1];
 		dota.getProMatches(count).then(matches => {
 			matches.forEach(match => {
+				let msg = '';
 				for (const key in match) {
-					tg.sendMessage(message.chat.id, `<pre>${key}: ${match[key]}</pre>`, {
-						parse_mode:'HTML'
-					});
+					msg += `${key}: ${match[key]}\n`;
 				}
+				tg.sendMessage(message.chat.id, `<pre>${msg}</pre>`, {
+					parse_mode:'HTML'
+				});
 			});
 		})
 	}

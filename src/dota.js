@@ -1,4 +1,5 @@
 const request = require('request');
+const heroesArray = JSON.parse(require(`./heroes.json`));
 
 function getLiveMatchups(team) {
     return Promise.all(team.map(id => getMatchup(id))).then(results => {
@@ -22,7 +23,7 @@ function getMatchup(id) {
     });
   }
 
-function getWinrate(team1, team2) {
+exports.getWinrate = function(team1, team2) {
     return getLiveMatchups(team1).then(heroes => {
         let count = 0;
         heroes.forEach(hero => {
@@ -42,7 +43,21 @@ function getWinrate(team1, team2) {
         return count / 5;
     });
 }
-exports.getHeroesList = function getHeroesList() {
-    const file = require(`./heroes.json`);
-    return JSON.parse(file).map(item => `${item.id} - ${item.name}`).join("\n");
+exports.getHeroesList = function() {
+    return heroesArray.map(item => `${item.id} - ${item.name}`).join("\n");
+}
+exports.getHeroesNames = function(team1, team2) {
+    let heroes1 = [];
+    let heroes2 = [];
+    heroesArray.forEach(hero => {
+        if (team1.find(item => item == hero.id)) {
+            heroes1.push(hero.name.slice(14));
+        } else if (team2.find(item => item == hero.id)) {
+            heroes2.push(hero.name.slice(14));
+        }
+    });
+    return heroes1.join(", ") + " vs " + heroes2.join(", ");
+}
+exports.find = function(str) {
+    return heroesArray.filter(item => item.name.indexOf(str) !== -1).map(item => `${item.id} - ${item.name}`).join("\n");
 }

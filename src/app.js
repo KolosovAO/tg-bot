@@ -20,6 +20,9 @@ function onMessage(message) {
 			});
 			return;
 		}
+		tg.sendMessage(message.chat.id, `<pre>${dota.getHeroesNames(team1, team2)}</pre>`, {
+			parse_mode:'HTML'
+		});
 		dota.getWinrate(team1, team2).then(result => {
 			tg.sendMessage(message.chat.id, `<pre>winrate - ${result}</pre>`, {
 				parse_mode:'HTML'
@@ -28,10 +31,16 @@ function onMessage(message) {
 			tg.sendMessage(message.chat.id, `<pre>something goes wrong</pre>`, {
 				parse_mode:'HTML'
 			});
-		})
+		});
 	}
 	if (message.text.split(' ')[0] === '/heroes') {
 		tg.sendMessage(message.chat.id, '<pre>' + dota.getHeroesList() + '</pre>', {
+			parse_mode:'HTML'
+		});
+	}
+	if (message.text.split(' ')[0] === '/find') {
+		const raw = message.text.slice(6).split(",");
+		tg.sendMessage(message.chat.id, '<pre>' + dota.find(raw) + '</pre>', {
 			parse_mode:'HTML'
 		});
 	}

@@ -11,8 +11,7 @@ const options = {
 		// you do NOT need to set up certificates since Heroku provides
 		// the SSL certs already (https://<app-name>.herokuapp.com)
 		// Also no need to pass IP because on Heroku you need to bind to 0.0.0.0
-	},
-	polling: true
+	}
 };
 const url = process.env.APP_URL || 'https://aser-samara-test-bot.herokuapp.com:443';
 

@@ -77,5 +77,30 @@ function onMessage(message) {
 		const id = message.text.split(' ')[1];
 		dota.getPicksByMatch(id).then(([team1, team2]) => getWinrate(message, team1, team2));
 	}
+	if (message.text.split(' ')[0] === '/findteam') {
+		const raw = message.text.split(' ')[1];
+		dota.findTeam(raw).then(data => {
+			tg.sendMessage(message.chat.id, `<pre>${data}</pre>`, {
+				parse_mode:'HTML'
+			});
+		})
+	}
+	if (message.text.split(' ')[0] === '/teamheroes') {
+		const [team, rawHeroes] = message.text.slice(7).split("-");
+		const heroes = rawHeroes.split(" ");
+		dota.getTeamHeroesInfo(team, heroes).then(data => {
+			tg.sendMessage(message.chat.id, `<pre>${data}</pre>`, {
+				parse_mode:'HTML'
+			});
+		});
+	}
+	if (message.text.split(' ')[0] === '/teaminfo') {
+		const id = message.text.split(' ')[1];
+		dota.getTeamInfo(id).then(data => {
+			tg.sendMessage(message.chat.id, `<pre>${data}</pre>`, {
+				parse_mode:'HTML'
+			});
+		});
+	}
 }
 

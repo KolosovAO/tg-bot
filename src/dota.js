@@ -12,12 +12,12 @@ function getMatchup(id) {
       method: 'GET',
     };
   
-    return new Promise((resolve, reject) => {
+    return new Promise((res, rej) => {
       request.get(options, (err, resp, body) => {
         if (err) {
-          reject(err);
+          rej(err);
         } else {
-          resolve(body);
+          res(body);
         }
       });
     });
@@ -69,12 +69,12 @@ function getPicksByMatch(id) {
         method: 'GET',
     };
     
-    return new Promise((resolve, reject) => {
+    return new Promise((res, rej) => {
         request.get(options, (err, resp, body) => {
             if (err) {
-                reject(err);
+                rej(err);
             } else {
-                resolve(body);
+                res(body);
             }
         });
     }).
@@ -102,12 +102,12 @@ function getProMatches(count) {
         method: 'GET',
     };
     
-    return new Promise((resolve, reject) => {
+    return new Promise((res, rej) => {
         request.get(options, (err, resp, body) => {
             if (err) {
-                reject(err);
+                rej(err);
             } else {
-                resolve(body);
+                res(body);
             }
         });
     }).
@@ -139,10 +139,72 @@ function getHeroesIcons(team1, team2) {
     return team1Icons + " vs " + team2Icons;
 }
 
+function findTeam(str) {
+    const options = {
+        url: "https://api.opendota.com/api/teams",
+        method: 'GET',
+    };
+
+    return new Promise((res, rej) => {
+        request.get(options, (err, resp, body) => {
+            if (err) {
+                rej(err);
+            } else {
+                res(body);
+            }
+        });
+    }).
+        then(data => JSON.parse(data)).
+        then(data => data.filter(item => item.name.toLowerCase().indexOf(str) !== -1)).
+        then(data => data.reduce((result, item) => result + `${item.team_id}: ${item.name}\n`, ""))
+}
+
+function getTeamInfo(id) {
+    const options = {
+        url: `https://api.opendota.com/api/teams/${id}`,
+        method: 'GET',
+    };
+
+    return new Promise((res, rej) => {
+        request.get(options, (err, resp, body) => {
+            if (err) {
+                rej(err);
+            } else {
+                res(body);
+            }
+        });
+    }).
+        then(data => JSON.parse(data)).
+        then(team => `id: ${team.team_id}\nname: ${team.name}\nrating: ${team.rating}\nstat: ${team.wins}-${team.losses}`)
+}
+
+function getTeamHeroesInfo(id, heroes) {
+        const options = {
+        url: `https://api.opendota.com/api/teams/${id}/heroes`,
+        method: 'GET',
+    };
+
+    return new Promise((res, rej) => {
+        request.get(options, (err, resp, body) => {
+            if (err) {
+                rej(err);
+            } else {
+                res(body);
+            }
+        });
+    }).
+        then(data => JSON.parse(data)).
+        then(data => data.filter(hero => heroes.find(id => id == hero.hero_id))).
+        then(heroes => heroes.reduce((result, hero) => result + `name: ${hero.localized_name}\nwins: ${hero.wins}\ngames: ${hero.games_played}\n\n`, ""));
+}
+
 exports.getProMatches = getProMatches;
 exports.getPicksByMatch = getPicksByMatch;
 exports.getWinrate = getWinrate;
 exports.find = find;
+exports.findTeam = findTeam;
 exports.getHeroesList = getHeroesList;
 exports.getHeroesNames = getHeroesNames;
 exports.getHeroesIcons = getHeroesIcons;
+exports.getTeamInfo = getTeamInfo;
+exports.getTeamHeroesInfo = getTeamHeroesInfo;

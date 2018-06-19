@@ -23,7 +23,7 @@ function getMatchup(id) {
     });
   }
 
-exports.getWinrate = function(team1, team2) {
+function getWinrate(team1, team2) {
     return getLiveMatchups(team1).then(heroes => {
         let count = 0;
         heroes.forEach(hero => {
@@ -43,10 +43,10 @@ exports.getWinrate = function(team1, team2) {
         return count / 5;
     });
 }
-exports.getHeroesList = function() {
+function getHeroesList() {
     return heroesArray.map(item => `${item.id} - ${item.name}`).join("\n");
 }
-exports.getHeroesNames = function(team1, team2) {
+function getHeroesNames(team1, team2) {
     let heroes1 = [];
     let heroes2 = [];
     heroesArray.forEach(hero => {
@@ -58,6 +58,76 @@ exports.getHeroesNames = function(team1, team2) {
     });
     return heroes1.join(", ") + " vs " + heroes2.join(", ");
 }
-exports.find = function(str) {
+function find(str) {
     return heroesArray.filter(item => item.name.indexOf(str) !== -1).map(item => `${item.id} - ${item.name}`).join("\n");
 }
+
+
+function getPicksByMatch(id) {
+    const options = {
+        url: `https://api.opendota.com/api/matches/${id}`,
+        method: 'GET',
+    };
+    
+    return new Promise((resolve, reject) => {
+        request.get(options, (err, resp, body) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(body);
+            }
+        });
+    }).
+        then(match => JSON.parse(match)).
+        then(match => {
+            const pickbans = match.picks_bans;
+            const team1 = [];
+            const team2 = [];
+            pickbans.forEach(pickban => {
+                if (pickban.is_pick) {
+                    if (pickban.team === 0) {
+                        team1.push(pickban.hero_id);
+                    } else {
+                        team2.push(pickban.hero_id);
+                    }
+                }
+            })
+            return [team1, team2];
+        });
+}
+
+function getProMatches(count) {
+    const options = {
+        url: `https://api.opendota.com/api/proMatches`,
+        method: 'GET',
+    };
+    
+    return new Promise((resolve, reject) => {
+        request.get(options, (err, resp, body) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(body);
+            }
+        });
+    }).
+        then(matches => JSON.parse(matches)).
+        then(matches => matches.slice(0, count)).
+        then(matches => matches.map(match => {
+            const date = new Date(match.start_time * 1000);
+            return {
+                id: match.match_id,
+                date: `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`,
+                teams: `${match.radiant_name || "unknown"}: ${match.radiant_score} vs ${match.dire_name || "unknown"}: ${match.dire_score}`,
+                winner: (match.radiant_win ? match.radiant_name : match.dire_name) || "unknown",
+                tournament: match.league_name
+            }
+        }));
+}
+
+exports.getProMatches = getProMatches;
+exports.getPicksByMatch = getPicksByMatch;
+exports.getWinrate = getWinrate;
+exports.find = find;
+exports.getHeroesList = getHeroesList;
+exports.getHeroesNames = getHeroesNames;

@@ -55,7 +55,7 @@ function onMessage(message) {
 			parse_mode:'HTML'
 		});
 	}
-	if (message.text.split(' ')[0] === '/lastmatches') {
+	if (message.text.split(' ')[0] === '/last') {
 		const count = message.text.split(' ')[1];
 		dota.getProMatches(count).then(matches => {
 			matches.forEach(match => {
@@ -69,7 +69,7 @@ function onMessage(message) {
 			});
 		})
 	}
-	if (message.text.split(' ')[0] === '/matchwinrate') {
+	if (message.text.split(' ')[0] === '/match') {
 		const id = message.text.split(' ')[1];
 		dota.getPicksByMatch(id).then(([team1, team2]) => {
 			tg.sendMessage(message.chat.id, `<pre>${dota.getHeroesNames(team1, team2)}</pre>`, {

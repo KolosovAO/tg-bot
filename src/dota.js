@@ -1,5 +1,5 @@
 const request = require('request');
-const heroesArray = require(`./heroes.js`);
+const heroesArray = require(`./heroes.js`).heroes;
 
 function getLiveMatchups(team) {
     return Promise.all(team.map(id => getMatchup(id))).then(results => {

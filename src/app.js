@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const dota = require('./dota');
 
-const token = "340218839:AAELWARY-brV_WGOw7h4bIlCfD5KVSYsd1Q";
+const TOKEN = "340218839:AAELWARY-brV_WGOw7h4bIlCfD5KVSYsd1Q";
 
 const options = {
 	webHook: {
@@ -16,7 +16,7 @@ const options = {
 };
 const url = process.env.APP_URL || 'https://aser-samara-test-bot.herokuapp.com:443';
 
-const tg = new TelegramBot(token, options);
+const tg = new TelegramBot(TOKEN, options);
 
 tg.setWebHook(`${url}/bot${TOKEN}`);
 

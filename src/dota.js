@@ -1,4 +1,4 @@
-function getHeroes(team) {
+function getMatchups(team) {
     return team.map(id => {
         const file = require(`./matchups${id}.json`);
         return JSON.parse(file);
@@ -6,16 +6,22 @@ function getHeroes(team) {
 }
 
 exports.getWinrate = function getWinrate(team1, team2) {
-    console.log(team1, team2)
-    console.log(getHeroes(team1))
-    return getHeroes(team1).reduce(
-        (av, hero) => av + team2.reduce(
-                (res, enemy) => {
-                    const matchup = hero.find(item => item.hero_id == enemy);
-                    const wr = matchup.wins / matchup.games_played;
-                    return res + (isNaN(wr) ? 0.5 : wr);
-                }, 0) / 5, 0
-    ) / 5;
+    const heroes = getMatchups(team1);
+    let count = 0;
+    heroes.forEach(hero => {
+        if (!Array.isArray(hero)) {
+            console.log("not valid array");
+        } else {
+            const avHeroWr = hero.reduce((total, item) => {
+                if (team2.find(val => val == item.hero_id)) {
+                    const wr = item.wins / item.games_played;
+                    total += isNaN(wr) ? 0.5 : wr;
+                }
+            }) / 5;
+            count += avHeroWr;
+        }
+    });
+    return count / 5;
 }
 
 exports.getHeroesList = function getHeroesList() {

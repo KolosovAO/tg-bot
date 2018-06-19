@@ -20,9 +20,15 @@ function onMessage(message) {
 			});
 			return;
 		}
-		tg.sendMessage(message.chat.id, `<pre>winrate - ${dota.getWinrate(team1, team2)}</pre>`, {
-			parse_mode:'HTML'
-		});
+		dota.getWinrate(team1, team2).then(result => {
+			tg.sendMessage(message.chat.id, `<pre>winrate - ${result}</pre>`, {
+				parse_mode:'HTML'
+			});
+		}).catch(e => {
+			tg.sendMessage(message.chat.id, `<pre>something goes wrong</pre>`, {
+				parse_mode:'HTML'
+			});
+		})
 	}
 	if (message.text.split(' ')[0] === '/heroes') {
 		tg.sendMessage(message.chat.id, '<pre>' + dota.getHeroesList() + '</pre>', {

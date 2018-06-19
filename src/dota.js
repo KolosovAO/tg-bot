@@ -125,9 +125,24 @@ function getProMatches(count) {
         }));
 }
 
+function getHeroesIcons(team1, team2) {
+    let team1Icons = "";
+    let team2Icons = "";
+
+    for (const hero of heroesArray) {
+        if (team1.find(id => id == hero.id)) {
+            team1Icons += `<img src=${hero.icon}></img>`
+        } else if (team2.find(id => id == hero.id)) {
+            team2Icons += `<img src=${hero.icon}></img>`
+        }
+    }
+    return team1Icons + " vs " + team2Icons;
+}
+
 exports.getProMatches = getProMatches;
 exports.getPicksByMatch = getPicksByMatch;
 exports.getWinrate = getWinrate;
 exports.find = find;
 exports.getHeroesList = getHeroesList;
 exports.getHeroesNames = getHeroesNames;
+exports.getHeroesIcons = getHeroesIcons;

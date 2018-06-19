@@ -21,6 +21,21 @@ tg.setWebHook(`${url}/bot${TOKEN}`);
 
 tg.on('message', onMessage);
 
+function getWinrate(team1, team2) {
+	tg.sendMessage(message.chat.id, dota.getHeroesIcons(team1, team2), {
+		parse_mode:'HTML'
+	});
+	dota.getWinrate(team1, team2).then(result => {
+		tg.sendMessage(message.chat.id, `<pre>winrate - ${result}</pre>`, {
+			parse_mode:'HTML'
+		});
+	}).catch(e => {
+		tg.sendMessage(message.chat.id, `<pre>something goes wrong</pre>`, {
+			parse_mode:'HTML'
+		});
+	});
+}
+
 function onMessage(message) {
 	if (message.text.split(' ')[0] === '/dota') {
 		const raw = message.text.slice(6).split(",");
@@ -31,18 +46,7 @@ function onMessage(message) {
 			});
 			return;
 		}
-		tg.sendMessage(message.chat.id, `<pre>${dota.getHeroesNames(team1, team2)}</pre>`, {
-			parse_mode:'HTML'
-		});
-		dota.getWinrate(team1, team2).then(result => {
-			tg.sendMessage(message.chat.id, `<pre>winrate - ${result}</pre>`, {
-				parse_mode:'HTML'
-			});
-		}).catch(e => {
-			tg.sendMessage(message.chat.id, `<pre>something goes wrong</pre>`, {
-				parse_mode:'HTML'
-			});
-		});
+		getWinrate(team1, team2);
 	}
 	if (message.text.split(' ')[0] === '/heroes') {
 		tg.sendMessage(message.chat.id, '<pre>' + dota.getHeroesList() + '</pre>', {
@@ -71,20 +75,7 @@ function onMessage(message) {
 	}
 	if (message.text.split(' ')[0] === '/match') {
 		const id = message.text.split(' ')[1];
-		dota.getPicksByMatch(id).then(([team1, team2]) => {
-			tg.sendMessage(message.chat.id, `<pre>${dota.getHeroesNames(team1, team2)}</pre>`, {
-				parse_mode:'HTML'
-			});
-			dota.getWinrate(team1, team2).then(result => {
-				tg.sendMessage(message.chat.id, `<pre>winrate - ${result}</pre>`, {
-					parse_mode:'HTML'
-				});
-			}).catch(e => {
-				tg.sendMessage(message.chat.id, `<pre>something goes wrong</pre>`, {
-					parse_mode:'HTML'
-				});
-			});
-		});
+		dota.getPicksByMatch(id).then(([team1, team2]) => getWinrate(team1, team2));
 	}
 }
 

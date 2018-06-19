@@ -3,10 +3,22 @@ const dota = require('./dota');
 
 const token = "340218839:AAELWARY-brV_WGOw7h4bIlCfD5KVSYsd1Q";
 
-const tg = new TelegramBot(token, {
+const options = {
+	webHook: {
+		// Port to which you should bind is assigned to $PORT variable
+		// See: https://devcenter.heroku.com/articles/dynos#local-environment-variables
+		port: process.env.PORT
+		// you do NOT need to set up certificates since Heroku provides
+		// the SSL certs already (https://<app-name>.herokuapp.com)
+		// Also no need to pass IP because on Heroku you need to bind to 0.0.0.0
+	},
 	polling: true
-});
+};
+const url = process.env.APP_URL || 'https://aser-samara-test-bot.herokuapp.com:443';
 
+const tg = new TelegramBot(token, options);
+
+tg.setWebHook(`${url}/bot${TOKEN}`);
 
 tg.on('message', onMessage);
 
@@ -45,3 +57,4 @@ function onMessage(message) {
 		});
 	}
 }
+

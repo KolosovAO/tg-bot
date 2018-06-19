@@ -10,7 +10,7 @@ function updateHeroes() {
             res(body);
         }).then(data => JSON.parse(data)).then(heroes => heroes.map(hero => (
             {
-                id: hero.id,
+                id: hero.id.toString(),
                 icon: "http://cdn.dota2.com" + hero.icon,
                 img: "http://cdn.dota2.com" + hero.img,
                 name: hero.name,
@@ -21,3 +21,5 @@ function updateHeroes() {
         })
     })
 }
+
+updateHeroes()

@@ -17,6 +17,7 @@ exports.getWinrate = function getWinrate(team1, team2) {
                     const wr = item.wins / item.games_played;
                     total += isNaN(wr) ? 0.5 : wr;
                 }
+                return total;
             }) / 5;
             count += avHeroWr;
         }

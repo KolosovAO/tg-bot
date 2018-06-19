@@ -51,9 +51,9 @@ function getHeroesNames(team1, team2) {
     let heroes2 = [];
     heroesArray.forEach(hero => {
         if (team1.find(item => item == hero.id)) {
-            heroes1.push(hero.name.slice(14));
+            heroes1.push(hero.local);
         } else if (team2.find(item => item == hero.id)) {
-            heroes2.push(hero.name.slice(14));
+            heroes2.push(hero.local);
         }
     });
     return heroes1.join(", ") + " vs " + heroes2.join(", ");

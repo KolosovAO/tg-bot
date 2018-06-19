@@ -22,7 +22,7 @@ tg.setWebHook(`${url}/bot${TOKEN}`);
 tg.on('message', onMessage);
 
 function getWinrate(message, team1, team2) {
-	tg.sendMessage(message.chat.id, dota.getHeroesIcons(team1, team2), {
+	tg.sendMessage(message.chat.id, `<pre>${dota.getHeroesNames(team1, team2)}</pre>`, {
 		parse_mode:'HTML'
 	});
 	dota.getWinrate(team1, team2).then(result => {

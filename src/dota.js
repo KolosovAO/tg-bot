@@ -44,7 +44,7 @@ function getWinrate(team1, team2) {
     });
 }
 function getHeroesList() {
-    return heroesArray.map(item => `${item.id} - ${item.name}`).join("\n");
+    return heroesArray.map(item => `${item.id} - ${item.local}`).join("\n");
 }
 function getHeroesNames(team1, team2) {
     let heroes1 = [];
@@ -59,7 +59,7 @@ function getHeroesNames(team1, team2) {
     return heroes1.join(", ") + " vs " + heroes2.join(", ");
 }
 function find(str) {
-    return heroesArray.filter(item => item.name.indexOf(str) !== -1).map(item => `${item.id} - ${item.name}`).join("\n");
+    return heroesArray.filter(item => item.local.toLowerCase().indexOf(str) !== -1).map(item => `${item.id} - ${item.local}`).join("\n");
 }
 
 

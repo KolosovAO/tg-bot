@@ -42,7 +42,7 @@ class Dota {
         let count = 0;
         heroes.forEach(hero => {
             const avHeroWr = hero.reduce((total, item) => {
-                if (team2.includes(item.hero_id)) {
+                if (team2.find(id => id == item.hero_id)) {
                     const wr = item.wins / item.games_played;
                     total += isNaN(wr) ? 0.5 : wr;
                 }
@@ -56,7 +56,7 @@ class Dota {
         const url = `https://api.opendota.com/api/teams/${id}/heroes`;
         const raw = await this._getUrlData(url);
         const data = JSON.parse(raw);
-        const info = data.filter(hero => heroes.includes(hero.hero_id));
+        const info = data.filter(hero => heroes.find(id => id == hero.hero_id));
         return info.reduce((result, hero) => result + `name: ${hero.localized_name}\nwins: ${hero.wins}\ngames: ${hero.games_played}\n\n`, "");
     }
     async findTeam(str) {

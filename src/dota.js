@@ -1,119 +1,81 @@
 const request = require('request');
 const heroesArray = require(`./heroes.js`).heroes;
+class Dota {
+    constructor() {
 
-function getLiveMatchups(team) {
-    return Promise.all(team.map(id => getMatchup(id))).then(results => {
-        return results.map(result => JSON.parse(result));
-    });
-}
-function getMatchup(id) {
-    const options = {
-      url: `https://api.opendota.com/api/heroes/${id}/matchups`,
-      method: 'GET',
-    };
-  
-    return new Promise((res, rej) => {
-      request.get(options, (err, resp, body) => {
-        if (err) {
-          rej(err);
-        } else {
-          res(body);
+        this._init();
+    }
+
+    _init() {
+        const heroes = {};
+        for (const hero of heroesArray) {
+            heroes[hero.id] = hero;
         }
-      });
-    });
-  }
 
-function getWinrate(team1, team2) {
-    return getLiveMatchups(team1).then(heroes => {
+        this._heroes = heroes;
+    }
+    getHeroesList() {
+        let list = "";
+        for (const key in this._heroes) {
+            list += `${key} - ${this._heroes[key].local}\n`;
+        }
+        return list;
+    }
+    getHeroesNames(team1, team2) {
+        let heroes1 = team1.map(id => this._heroes[id].local);
+        let heroes2 = team2.map(id => this._heroes[id].local)
+
+        return heroes1.join(", ") + " vs " + heroes2.join(", ");
+    }
+    findHero(str) {
+        let results = "";
+        for (const key in this._heroes) {
+            if (this._heroes[key].local.toLowerCase().indexOf(str) !== -1) {
+                results += `${key} - ${this._heroes[key].local}\n`;
+            }
+        }
+        return results;
+    }
+    async getWinrate(team1, team2) {
+        const raw = await this._getMatchups(team1);
+        const heroes = raw.map(hero => JSON.parse(hero));
         let count = 0;
         heroes.forEach(hero => {
-            if (!Array.isArray(hero)) {
-                console.log("not valid array");
-            } else {
-                const avHeroWr = hero.reduce((total, item) => {
-                    if (team2.find(val => val == item.hero_id)) {
-                        const wr = item.wins / item.games_played;
-                        total += isNaN(wr) ? 0.5 : wr;
-                    }
-                    return total;
-                }, 0) / 5;
-                count += avHeroWr;
-            }
+            const avHeroWr = hero.reduce((total, item) => {
+                if (team2.includes(item.hero_id)) {
+                    const wr = item.wins / item.games_played;
+                    total += isNaN(wr) ? 0.5 : wr;
+                }
+                return total;
+            }, 0) / 5;
+            count += avHeroWr;
         });
         return count / 5;
-    });
-}
-function getHeroesList() {
-    return heroesArray.map(item => `${item.id} - ${item.local}`).join("\n");
-}
-function getHeroesNames(team1, team2) {
-    let heroes1 = [];
-    let heroes2 = [];
-    heroesArray.forEach(hero => {
-        if (team1.find(item => item == hero.id)) {
-            heroes1.push(hero.local);
-        } else if (team2.find(item => item == hero.id)) {
-            heroes2.push(hero.local);
-        }
-    });
-    return heroes1.join(", ") + " vs " + heroes2.join(", ");
-}
-function find(str) {
-    return heroesArray.filter(item => item.local.toLowerCase().indexOf(str) !== -1).map(item => `${item.id} - ${item.local}`).join("\n");
-}
-
-
-function getPicksByMatch(id) {
-    const options = {
-        url: `https://api.opendota.com/api/matches/${id}`,
-        method: 'GET',
-    };
-    
-    return new Promise((res, rej) => {
-        request.get(options, (err, resp, body) => {
-            if (err) {
-                rej(err);
-            } else {
-                res(body);
+    }
+    async getTeamHeroes(id, heroes) {
+        const url = `https://api.opendota.com/api/teams/${id}/heroes`;
+        const raw = await this._getUrlData(url);
+        const data = JSON.parse(raw);
+        const info = data.filter(hero => heroes.includes(hero.hero_id));
+        return info.reduce((result, hero) => result + `name: ${hero.localized_name}\nwins: ${hero.wins}\ngames: ${hero.games_played}\n\n`, "");
+    }
+    async findTeam(str) {
+        const url = "https://api.opendota.com/api/teams";
+        const raw = await this._getUrlData(url);
+        const data = JSON.parse(raw);
+        return data.reduce((result, item) => {
+            if (item.name.toLowerCase().indexOf(str) !== -1) {
+                result += `${item.team_id}: ${item.name}\n`;
             }
-        });
-    }).
-        then(match => JSON.parse(match)).
-        then(match => {
-            const pickbans = match.picks_bans;
-            const team1 = [];
-            const team2 = [];
-            pickbans.forEach(pickban => {
-                if (pickban.is_pick) {
-                    if (pickban.team === 0) {
-                        team1.push(pickban.hero_id);
-                    } else {
-                        team2.push(pickban.hero_id);
-                    }
-                }
-            })
-            return [team1, team2];
-        });
-}
-
-function getProMatches(count) {
-    const options = {
-        url: `https://api.opendota.com/api/proMatches`,
-        method: 'GET',
-    };
-    
-    return new Promise((res, rej) => {
-        request.get(options, (err, resp, body) => {
-            if (err) {
-                rej(err);
-            } else {
-                res(body);
-            }
-        });
-    }).
-        then(matches => JSON.parse(matches)).
-        then(matches => matches.slice(0, count)).
-        then(matches => matches.map(match => {
+            return result;
+        }, "");
+    }
+    async getProMatches(count) {
+        const url = "https://api.opendota.com/api/proMatches";
+        const raw = await this._getUrlData(url);
+        const data = JSON.parse(raw);
+        const matches = data.slice(0, count);
+        return matches.map(match => {
             const date = new Date(match.start_time * 1000);
             return {
                 id: match.match_id,
@@ -122,89 +84,53 @@ function getProMatches(count) {
                 winner: (match.radiant_win ? match.radiant_name : match.dire_name) || "unknown",
                 tournament: match.league_name
             }
-        }));
-}
-
-function getHeroesIcons(team1, team2) {
-    let team1Icons = "";
-    let team2Icons = "";
-
-    for (const hero of heroesArray) {
-        if (team1.find(id => id == hero.id)) {
-            team1Icons += `<img src=${hero.icon}></img>`
-        } else if (team2.find(id => id == hero.id)) {
-            team2Icons += `<img src=${hero.icon}></img>`
-        }
+        });
     }
-    return team1Icons + " vs " + team2Icons;
-}
+    async getTeamInfo(id) {
+        const url = "https://api.opendota.com/api/teams/" + id;
+        const raw = await this._getUrlData(url);
+        const team = JSON.parse(raw);
+        return `id: ${team.team_id}\nname: ${team.name}\nrating: ${team.rating}\nstat: ${team.wins}-${team.losses}`;
+    }
+    async getPicksByMatch(id) {
+        const url = "https://api.opendota.com/api/matches/" + id;
+        const raw = await this._getUrlData(url);
+        const match = JSON.parse(raw);
 
-function findTeam(str) {
-    const options = {
-        url: "https://api.opendota.com/api/teams",
-        method: 'GET',
-    };
-
-    return new Promise((res, rej) => {
-        request.get(options, (err, resp, body) => {
-            if (err) {
-                rej(err);
-            } else {
-                res(body);
+        const pickbans = match.picks_bans;
+        const team1 = [];
+        const team2 = [];
+        pickbans.forEach(pickban => {
+            if (pickban.is_pick) {
+                if (pickban.team === 0) {
+                    team1.push(pickban.hero_id);
+                } else {
+                    team2.push(pickban.hero_id);
+                }
             }
         });
-    }).
-        then(data => JSON.parse(data)).
-        then(data => data.filter(item => item.name.toLowerCase().indexOf(str) !== -1)).
-        then(data => data.reduce((result, item) => result + `${item.team_id}: ${item.name}\n`, ""))
-}
-
-function getTeamInfo(id) {
-    const options = {
-        url: `https://api.opendota.com/api/teams/${id}`,
-        method: 'GET',
-    };
-
-    return new Promise((res, rej) => {
-        request.get(options, (err, resp, body) => {
-            if (err) {
-                rej(err);
-            } else {
-                res(body);
-            }
-        });
-    }).
-        then(data => JSON.parse(data)).
-        then(team => `id: ${team.team_id}\nname: ${team.name}\nrating: ${team.rating}\nstat: ${team.wins}-${team.losses}`)
-}
-
-function getTeamHeroesInfo(id, heroes) {
+        return [team1, team2];
+    }
+    _getMatchups(heroes) {
+        return Promise.all(heroes.map(id => this._getUrlData(`https://api.opendota.com/api/heroes/${id}/matchups`)));
+    }
+    _getUrlData(url) {
         const options = {
-        url: `https://api.opendota.com/api/teams/${id}/heroes`,
-        method: 'GET',
-    };
-
-    return new Promise((res, rej) => {
-        request.get(options, (err, resp, body) => {
-            if (err) {
-                rej(err);
-            } else {
-                res(body);
-            }
-        });
-    }).
-        then(data => JSON.parse(data)).
-        then(data => data.filter(hero => heroes.find(id => id == hero.hero_id))).
-        then(heroes => heroes.reduce((result, hero) => result + `name: ${hero.localized_name}\nwins: ${hero.wins}\ngames: ${hero.games_played}\n\n`, ""));
+            url,
+            method: 'GET',
+        };
+        
+        return new Promise((res, rej) => {
+            request.get(options, (err, _, body) => {
+                if (err) {
+                    rej(err);
+                } else {
+                    res(body);
+                }
+            });
+        })
+    }
 }
 
-exports.getProMatches = getProMatches;
-exports.getPicksByMatch = getPicksByMatch;
-exports.getWinrate = getWinrate;
-exports.find = find;
-exports.findTeam = findTeam;
-exports.getHeroesList = getHeroesList;
-exports.getHeroesNames = getHeroesNames;
-exports.getHeroesIcons = getHeroesIcons;
-exports.getTeamInfo = getTeamInfo;
-exports.getTeamHeroesInfo = getTeamHeroesInfo;
+
+module.exports = new Dota();

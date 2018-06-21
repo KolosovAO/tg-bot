@@ -41,7 +41,7 @@ tg.on('message', (message) => {
 			getWinrate(message, team1, team2);
 			return;
 		case COMMANDS.FIND_HERO:
-			sendMessage(message.chat.id, dota.find(options));
+			sendMessage(message.chat.id, dota.findHero(options));
 			return;
 		case COMMANDS.FIND_TEAM:
 			dota.findTeam(options).then(data => {
@@ -51,7 +51,7 @@ tg.on('message', (message) => {
 		case COMMANDS.FIND_TEAM_HEROES:
 			const [team, rawHeroes] = options.split("-");
 			const heroes = rawHeroes.split(" ");
-			dota.getTeamHeroesInfo(team, heroes).then(data => {
+			dota.getTeamHeroes(team, heroes).then(data => {
 				sendMessage(message.chat.id, data);
 			});
 			return;

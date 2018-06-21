@@ -35,45 +35,33 @@ tg.on('message', (message) => {
 			const rawTeams = options.split(",");
 			const [team1, team2] = rawTeams.map(team => team.split(" "));
 			if (!Array.isArray(team1) || !Array.isArray(team2) || team1.length !== 5 || team2.length !== 5) {
-				tg.sendMessage(message.chat.id, `<pre>invalid format</pre>`, {
-					parse_mode:'HTML'
-				});
+				sendMessage(message.chat.id, "invalid format");
 				return;
 			}
 			getWinrate(message, team1, team2);
 			return;
 		case COMMANDS.FIND_HERO:
-			tg.sendMessage(message.chat.id, '<pre>' + dota.find(options) + '</pre>', {
-				parse_mode:'HTML'
-			});
+			sendMessage(message.chat.id, dota.find(options));
 			return;
 		case COMMANDS.FIND_TEAM:
 			dota.findTeam(options).then(data => {
-				tg.sendMessage(message.chat.id, `<pre>${data}</pre>`, {
-					parse_mode:'HTML'
-				});
+				sendMessage(message.chat.id, data)
 			});
 			return;
 		case COMMANDS.FIND_TEAM_HEROES:
 			const [team, rawHeroes] = options.split("-");
 			const heroes = rawHeroes.split(" ");
 			dota.getTeamHeroesInfo(team, heroes).then(data => {
-				tg.sendMessage(message.chat.id, `<pre>${data}</pre>`, {
-					parse_mode:'HTML'
-				});
+				sendMessage(message.chat.id, data);
 			});
 			return;
 		case COMMANDS.FIND_TEAM_INFO:
 			dota.getTeamInfo(options).then(data => {
-				tg.sendMessage(message.chat.id, `<pre>${data}</pre>`, {
-					parse_mode:'HTML'
-				});
+				sendMessage(message.chat.id, data);
 			});
 			return;
 		case COMMANDS.GET_HEROES_LIST:
-			tg.sendMessage(message.chat.id, '<pre>' + dota.getHeroesList() + '</pre>', {
-				parse_mode:'HTML'
-			});
+			sendMessage(message.chat.id, dota.getHeroesList());
 			return;
 		case COMMANDS.GET_LAST_PRO_MATCHES:
 			dota.getProMatches(options).then(matches => {
@@ -82,14 +70,18 @@ tg.on('message', (message) => {
 					for (const key in match) {
 						msg += `${key}: ${match[key]}\n`;
 					}
-					tg.sendMessage(message.chat.id, `<pre>${msg}</pre>`, {
-						parse_mode:'HTML'
-					});
+					sendMessage(message.chat.id, msg);
 				});
 			})
 			return;
 	}
 });
+
+function sendMessage(chatId, msg) {
+	tg.sendMessage(chatId, '<pre>' + msg + '</pre>', {
+		parse_mode:'HTML'
+	});
+}
 
 function parseMessage(msg) {
 	let command;
@@ -112,12 +104,8 @@ function getWinrate(message, team1, team2) {
 		parse_mode:'HTML'
 	});
 	dota.getWinrate(team1, team2).then(result => {
-		tg.sendMessage(message.chat.id, `<pre>winrate - ${result}</pre>`, {
-			parse_mode:'HTML'
-		});
+		sendMessage(message.chat.id, `winrate - ${result}`);
 	}).catch(e => {
-		tg.sendMessage(message.chat.id, `<pre>something goes wrong</pre>`, {
-			parse_mode:'HTML'
-		});
+		sendMessage(message.chat.id, "something goes wrong");
 	});
 }

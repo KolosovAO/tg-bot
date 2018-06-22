@@ -72,7 +72,7 @@ tg.on('message', (message) => {
 					}
 					sendMessage(message.chat.id, msg);
 				});
-			})
+			});
 			return;
 	}
 });

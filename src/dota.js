@@ -1,18 +1,8 @@
 const request = require('request');
-const heroesArray = require(`./heroes.js`).heroes;
 class Dota {
     constructor() {
 
-        this._init();
-    }
-
-    _init() {
-        const heroes = {};
-        for (const hero of heroesArray) {
-            heroes[hero.id] = hero;
-        }
-
-        this._heroes = heroes;
+        this._initHeroes();
     }
     getHeroesList() {
         let list = "";
@@ -110,6 +100,23 @@ class Dota {
             }
         });
         return [team1, team2];
+    }
+    async _initHeroes() {
+        const url = "https://api.opendota.com/api/heroStats";
+        const raw = await this._getUrlData(url);
+        const data = JSON.parse(raw);
+        const heroes = {};
+        for (const hero of data) {
+            heroes[hero.id] = {
+                id: hero.id,
+                icon: "http://cdn.dota2.com" + hero.icon,
+                img: "http://cdn.dota2.com" + hero.img,
+                name: hero.name,
+                local: hero.localized_name
+            };
+        }
+
+        this._heroes = heroes;
     }
     _getMatchups(heroes) {
         return Promise.all(heroes.map(id => this._getUrlData(`https://api.opendota.com/api/heroes/${id}/matchups`)));

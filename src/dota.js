@@ -30,17 +30,25 @@ class Dota {
         const raw = await this._getMatchups(team1);
         const heroes = raw.map(hero => JSON.parse(hero));
         let count = 0;
+        let badCount = 0;
         heroes.forEach(hero => {
             const avHeroWr = hero.reduce((total, item) => {
                 if (team2.find(id => id == item.hero_id)) {
-                    const wr = item.wins / item.games_played;
-                    total += isNaN(wr) ? 0.5 : wr;
+                    if (!item || item.games_played < 8) {
+                        total += 0.5;
+                        badCount ++;
+                    } else {
+                        total += item.wins / item.games_played;
+                    }
                 }
                 return total;
             }, 0) / 5;
             count += avHeroWr;
         });
-        return count / 5;
+        return {
+            winrate: count / 5,
+            bad: badCount > 5
+        };
     }
     async getTeamHeroes(id, heroes) {
         const url = `https://api.opendota.com/api/teams/${id}/heroes`;

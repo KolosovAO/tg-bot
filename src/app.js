@@ -111,7 +111,7 @@ function getWinrate(message, team1, team2) {
 		parse_mode:'HTML'
 	});
 	dota.getWinrate(team1, team2).then(result => {
-		sendMessage(message.chat.id, `winrate - ${result}`);
+		sendMessage(message.chat.id, `winrate - ${result.winrate} ${result.bad ? "*" : ""}`);
 	}).catch(e => {
 		sendMessage(message.chat.id, "something goes wrong");
 	});

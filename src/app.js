@@ -77,7 +77,7 @@ tg.on('message', (message) => {
 		case COMMANDS.FIND_BEST_HERO:
 			const pick = options.split(" ");
 			dota.findBestHero(pick).then(data => {
-				const msg = data.slice(0, 10).map(item => `${item.name} - ${item.winrate}`).join("\n");
+				const msg = data.slice(0, 15).map(item => `${item.name} - ${item.winrate} ${item.bad ? "*" : ""}`).join("\n");
 				sendMessage(message.chat.id, msg);
 			});
 			return;

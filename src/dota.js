@@ -112,18 +112,20 @@ class Dota {
                 return;
             }
             let total = 0;
+            let bad = false;
             heroes.forEach(hero => {
                 const currentHero = hero.find(item => item.hero_id == heroId);
-                if (currentHero) {
-                    const wr = currentHero.wins / currentHero.games_played;
-                    total += isNaN(wr) ? 0.5 : wr;
-                } else {
+                if (!currentHero || currentHero.games_played < 10) {
                     total += 0.5;
+                    bad = true;
+                } else {
+                    total += 1 - currentHero.wins / currentHero.games_played;
                 }
             });
             result.push({
                 name: this._heroes[heroId].local,
-                winrate: total / 5
+                winrate: total / 5,
+                bad
             })
         }));
         result.sort((a, b) => b.winrate - a.winrate);

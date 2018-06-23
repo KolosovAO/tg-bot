@@ -101,6 +101,34 @@ class Dota {
         });
         return [team1, team2];
     }
+    async findBestHero(pick) {
+        const raw = await this._getMatchups(pick);
+        const heroes = raw.map(hero => JSON.parse(hero));
+
+        const allHeroes = Object.keys(this._heroes);
+        const result = [];
+        allHeroes.forEach((heroId => {
+            if (pick.find(hero => heroId == hero)) {
+                return;
+            }
+            let total = 0;
+            heroes.forEach(hero => {
+                const currentHero = hero.find(item => item.hero_id == heroId);
+                if (currentHero) {
+                    const wr = currentHero.wins / currentHero.games_played;
+                    total += isNaN(wr) ? 0.5 : wr;
+                } else {
+                    total += 0.5;
+                }
+            });
+            result.push({
+                name: this._heroes[heroId].local,
+                winrate: total / 5
+            })
+        }));
+        result.sort((a, b) => b.winrate - a.winrate);
+        return result;
+    }
     async _initHeroes() {
         const url = "https://api.opendota.com/api/heroStats";
         const raw = await this._getUrlData(url);

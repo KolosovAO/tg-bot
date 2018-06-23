@@ -124,7 +124,7 @@ class Dota {
             });
             result.push({
                 name: this._heroes[heroId].local,
-                winrate: total / 5,
+                winrate: total / pick.length,
                 bad
             })
         }));

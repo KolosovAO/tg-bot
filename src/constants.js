@@ -7,5 +7,6 @@ exports.COMMANDS = {
     FIND_HERO: "/find",
     FIND_TEAM_HEROES: "/teamheroes",
     FIND_TEAM_INFO: "/teaminfo",
-    FIND_BEST_HERO: "/findbest"
+    FIND_BEST_HERO: "/findbest",
+    HELP: "/help"
 }
